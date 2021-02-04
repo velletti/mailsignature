@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2015-12-31T16:40:32Z" product-name="mailsignature">
+		<header/>
+		<body>
+			<trans-unit id="tx_mailsignature_domain_model_signature">
+				<source>Signature</source>
+			</trans-unit>
+			<trans-unit id="tx_mailsignature_domain_model_signature.name">
+				<source>Name</source>
+			</trans-unit>
+			<trans-unit id="tx_mailsignature_domain_model_signature.html">
+				<source>Html</source>
+			</trans-unit>
+			<trans-unit id="tx_mailsignature_domain_model_signature.plain">
+				<source>Plain</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

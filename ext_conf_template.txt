@@ -1,0 +1,11 @@
+
+####	forgotPassword
+# cat=forgotPassword; type=string; label=CC Email Address where to send a copy of PWD forgot email
+PWDsendCCmail = joerg@velletti.de
+
+# cat=forgotPassword; type=boolean; label=CC Email Address where to send a copy of PWD forgot email
+PWDsendHtml   = 1
+
+# cat=forgotPassword; type=integer; label=UID of the signature data record to send out
+PWDaddsignature = 1
+

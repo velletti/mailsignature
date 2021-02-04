@@ -1,0 +1,35 @@
+{namespace mailsig=Velletti\Mailsignature\ViewHelpers}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>{subject}</title>
+</head>
+<body  style="background-color: #DDDDDD">
+    <div style="width: 100%; padding-top:0px;">
+        <div style="width: 95%; margin: auto; padding: 2px 20px; ">
+            <div style="margin: 5px 20px;">
+                <table style="background-color: #FFFFFF;width: 100%; border-bottom: 2px solid #CCCCCC; border-right: 2px solid #CCCCCC; box-shadow: 3px 4px 5px 2px rgba(190,190,190,0.6) ">
+                    <th>
+                        <img width="413" height="101" alt="Logo" style="width:100%; height:auto;" src="{mailsig:servername()}/typo3conf/ext/mailsignature/Resources/Public/Img/EmailImg.JPG" />
+                    </th>
+                    <tbody>
+                        <tr>
+                            <td style="font-family: arial, helvetica, verdana, sans-serif ;font-size: 16px; color: #333; padding: 25px">
+                                <f:format.raw>{message}</f:format.raw>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: arial, helvetica, verdana, sans-serif ; font-size: 13px; color: #333;  padding: 25px">
+                                <f:format.raw>{signature}</f:format.raw>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

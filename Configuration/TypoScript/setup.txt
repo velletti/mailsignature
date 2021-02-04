@@ -1,0 +1,25 @@
+
+plugin.tx_mailsignature {
+	view {
+		templateRootPaths.0 = {$plugin.tx_mailsignature_mailsignature.view.templateRootPath}
+		partialRootPaths.0 = {$plugin.tx_mailsignature_mailsignature.view.partialRootPath}
+		layoutRootPaths.0 = {$plugin.tx_mailsignature_mailsignature.view.layoutRootPath}
+	}
+	persistence {
+		storagePid = {$plugin.tx_mailsignature_mailsignature.persistence.storagePid}
+	}
+	settings {
+		forgotPassword {
+		    # Send an Email with Password Forgotten to this Email Address. so this "User" Admin sees everything is working ...
+			sendCCmail = joerg@velletti.de
+
+			sendHtml   = 1
+			# good to know: the hook does not render EXT:/pluginname/etc and also does not offer easy access to CONSTANTS
+			sendHtmlTemplate = typo3conf/ext/mailsignature/Resources/Private/Templates/Email/ForgotPassword.html
+
+			# cat=forgotPassword; type=integer; label=UID of the signature data record to send out additionally below th email
+			addSignature = 1
+		}
+	}
+}
+
