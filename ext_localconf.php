@@ -4,7 +4,7 @@ if (!defined('TYPO3_MODE')) {
 }
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-	'Velletti.' . $_EXTKEY,
+	'Velletti.Mailsignature' ,
 	'Mailsignature',
 	array(
 		'Signature' => 'addSignature, getSignature, sentHTMLmail',
@@ -16,7 +16,6 @@ if (!defined('TYPO3_MODE')) {
 		
 	)
 );
-## EXTENSION BUILDER DEFAULTS END TOKEN - Everything BEFORE this line is overwritten with the defaults of the extension builder
 
 // use hook to change the Email before Send out
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['felogin']['forgotPasswordMail'][] = "Velletti\Mailsignature\Service\SignatureService->sentHTMLmailService" ;

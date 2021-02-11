@@ -16,15 +16,15 @@ $EM_CONF[$_EXTKEY] = array(
 	'category' => 'misc',
 	'author' => 'Jörg Velletti',
 	'author_email' => 'typo3@velletti.de',
-	'state' => 'beta',
+	'state' => 'stable',
 	'internal' => '',
 	'uploadfolder' => '0',
 	'createDirs' => '',
 	'clearCacheOnLoad' => 0,
-	'version' => '1.1.1',
+	'version' => '10.4.1',
 	'constraints' => array(
 		'depends' => array(
-			'typo3' => '7.6.0-8.7.99',
+			'typo3' => '9.5.0-10.4.99',
 		),
 		'conflicts' => array(
 		),
