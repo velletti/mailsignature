@@ -4,7 +4,7 @@ if (!defined('TYPO3_MODE')) {
 }
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-	'Velletti.Mailsignature' ,
+	'Velletti.mailsignature' ,
 	'Mailsignature',
 	array(
 		'Signature' => 'addSignature, getSignature, sentHTMLmail',

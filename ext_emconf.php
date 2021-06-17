@@ -10,7 +10,7 @@
  * "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = array(
+$EM_CONF['mailsignature'] = array(
 	'title' => 'Mail Signature Service',
 	'description' => 'Offers Classes for better Emails: Add a standard Signature for different Languages, Hook to fe User Password Forgotten and more ',
 	'category' => 'misc',
