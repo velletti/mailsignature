@@ -39,6 +39,7 @@ class FluidClassViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractVie
         $this->registerArgument('cssClass', 'string', 'name of the wanted cssClass', false , array()  );
         $this->registerArgument('type', 'string', 'type of section : header or body or end Div  ', false , "body"  );
         $this->registerArgument('tag', 'string', 'wanted tag default name  DIV ', false , "div"  );
+        $this->registerArgument('data', 'array', 'Data of tt Content element maybe not needed ', false , []  );
     }
 
 
