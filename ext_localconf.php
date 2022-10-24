@@ -4,15 +4,15 @@ if (!defined('TYPO3_MODE')) {
 }
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-	'Velletti.mailsignature' ,
+	'Mailsignature' ,
 	'Mailsignature',
 	array(
-		'Signature' => 'addSignature, getSignature, sentHTMLmail',
+		\Velletti\Mailsignature\Controller\SignatureController::class => 'addSignature, getSignature, sentHTMLmail',
 		
 	),
 	// non-cacheable actions
 	array(
-		'Signature' => '',
+		\Velletti\Mailsignature\Controller\SignatureController::class => '',
 		
 	)
 );

@@ -29,7 +29,7 @@ namespace Velletti\Mailsignature\Tests\Unit\Controller;
  *
  * @author Jörg Velletti <typo3@velletti.de>
  */
-class SignatureControllerTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class SignatureControllerTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
 
 	/**
@@ -39,7 +39,7 @@ class SignatureControllerTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 
 	public function setUp()
 	{
-		$this->subject = $this->getMock('Velletti\\Mailsignature\\Controller\\SignatureController', array('redirect', 'forward', 'addFlashMessage'), array(), '', FALSE);
+		$this->subject = $this->getMock(\Velletti\Mailsignature\Controller\SignatureController::class, array('redirect', 'forward', 'addFlashMessage'), array(), '', FALSE);
 	}
 
 	public function tearDown()
