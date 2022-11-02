@@ -20,7 +20,7 @@ $EM_CONF['mailsignature'] = array(
 	'version' => '10.4.1',
 	'constraints' => array(
 		'depends' => array(
-			'typo3' => '9.5.0-10.4.99',
+			'typo3' => '9.5.0-11.5.99',
 		),
 		'conflicts' => array(
 		),
