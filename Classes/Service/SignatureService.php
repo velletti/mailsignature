@@ -133,14 +133,10 @@ class SignatureService extends ExtensionService
 
 
         if( is_null( $lng ) ) {
-            if (class_exists(Context::class)) {
-                /** @var AspectInterface $languageAspect */
-                $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language') ;
-                // (previously known as TSFE->sys_language_uid)
-                $lng = $languageAspect->getId() ;
-            } else {
-                $lng = $GLOBALS['TSFE']->sys_language_uid ;
-            }
+            /** @var AspectInterface $languageAspect */
+            $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language') ;
+            // (previously known as TSFE->sys_language_uid)
+            $lng = $languageAspect->getId() ;
         }
 
 
@@ -296,7 +292,7 @@ class SignatureService extends ExtensionService
      * @param string $replyTo Optional "Reply-To" header email address.
      * @return bool Returns TRUE if sent
      */
-    public function sendNotifyEmail($message, $htmlMessage , $recipients, $cc, $senderAddress, $senderName = '', $replyTo = '')
+    public function sendNotifyEmail($message, $htmlMessage , $recipients, $cc, $senderAddress, $senderName = '', $replyTo = ''): bool
     {
        
         $senderName = trim($senderName);

@@ -17,10 +17,10 @@ $EM_CONF['mailsignature'] = array(
 	'author' => 'Jörg Velletti',
 	'author_email' => 'typo3@velletti.de',
 	'state' => 'stable',
-	'version' => '10.4.1',
+	'version' => '15.5.1',
 	'constraints' => array(
 		'depends' => array(
-			'typo3' => '9.5.0-11.5.99',
+			'typo3' => '10.4.0-11.5.99',
 		),
 		'conflicts' => array(
 		),

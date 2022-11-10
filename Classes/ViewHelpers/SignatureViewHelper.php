@@ -62,13 +62,9 @@ class SignatureViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractView
 
 		$cObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer');
 
-        if (class_exists(\TYPO3\CMS\Core\Context\Context::class)) {
-            $languageAspect = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Context\Context::class)->getAspect('language') ;
-            // (previously known as TSFE->sys_language_uid)
-            $lng = $languageAspect->getId() ;
-        } else {
-            $lng = $GLOBALS['TSFE']->sys_language_uid ;
-        }
+        $languageAspect = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Context\Context::class)->getAspect('language') ;
+        // (previously known as TSFE->sys_language_uid)
+        $lng = $languageAspect->getId() ;
 
         /**
          * @var \TYPO3\CMS\Core\Database\ConnectionPool
