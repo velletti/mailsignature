@@ -273,7 +273,7 @@ class SignatureService extends ExtensionService
 
         $plainMessage = strip_tags($params['message']) . "\n\n" .   $signature['plain']  ;
 
-        $this->sendNotifyEmail($plainMessage, $htmlMessage , $params['user']['email'] , $sendCCmail , $fromEmail, $fromEmailName , $fromEmail ) ;
+        $this->sendTheHtmlEmail($plainMessage, $htmlMessage , $params['user']['email'] , $sendCCmail , $fromEmail, $fromEmailName , $fromEmail ) ;
 
         // j.v.: now remove Email from Array so the default plain Email is not set out anymore
         unset( $params['user']['email'] ) ;
@@ -292,7 +292,7 @@ class SignatureService extends ExtensionService
      * @param string $replyTo Optional "Reply-To" header email address.
      * @return bool Returns TRUE if sent
      */
-    public function sendNotifyEmail($message, $htmlMessage , $recipients, $cc, $senderAddress, $senderName = '', $replyTo = ''): bool
+    public function sendTheHtmlEmail($message, $htmlMessage , $recipients, $cc, $senderAddress, $senderName = '', $replyTo = ''): bool
     {
        
         $senderName = trim($senderName);
@@ -313,9 +313,6 @@ class SignatureService extends ExtensionService
         if (!empty($parsedReplyTo)) {
             $mail->setReplyTo($parsedReplyTo);
         }
-        /** @var Typo3Version $tt */
-        $tt = GeneralUtility::makeInstance( \TYPO3\CMS\Core\Information\Typo3Version::class ) ;
-
 
         $message = trim($message);
         if ($message !== '') {
@@ -327,19 +324,12 @@ class SignatureService extends ExtensionService
             $parsedRecipients = MailUtility::parseAddresses($recipients);
             $parsedRecipients = $parsedRecipients[0] ;
 
-
-
             if (!empty($parsedRecipients)) {
                 $mail->setTo($parsedRecipients)
                     ->setSubject($subject)
                     ->setReplyTo($replyTo) ;
-                if( $tt->getMajorVersion()  < 10 ) {
-                    $mail->setBody( $htmlMessage  , 'text/html'  );
-                    $mail->addPart( $plainMessage  , 'text/plain'  );
-                } else {
                     $mail->html( $htmlMessage  , 'utf-8'  );
                     $mail->text( $plainMessage  , 'utf-8'  );
-                }
                 if (GeneralUtility::validEmail($parsedRecipients) ) {
                     $mail->send();
                 }
@@ -356,13 +346,8 @@ class SignatureService extends ExtensionService
                     ->setReplyTo($replyTo)
                     ->setSubject( "CC: " . $subject . " -> " . $parsedRecipients );
 
-                if( $tt->getMajorVersion()  < 10 ) {
-                    $mail->setBody( $htmlMessage  , 'text/html'  );
-                    $mail->addPart( $plainMessage  , 'text/plain'  );
-                } else {
                     $mail->html( $htmlMessage  , 'utf-8'  );
                     $mail->text( $plainMessage  , 'utf-8'  );
-                }
                 if (GeneralUtility::validEmail($parsedCc) ) {
                     $mail->send();
                 }
