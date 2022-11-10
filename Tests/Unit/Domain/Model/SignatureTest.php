@@ -34,7 +34,7 @@ namespace Velletti\Mailsignature\Tests\Unit\Domain\Model;
  *
  * @author Jörg Velletti <typo3@velletti.de>
  */
-class SignatureTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class SignatureTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
 	/**
 	 * @var \Velletti\Mailsignature\Domain\Model\Signature

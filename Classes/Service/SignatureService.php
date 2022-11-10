@@ -90,13 +90,13 @@ class SignatureService extends ExtensionService
 	 * @return void
 	 */
     public function initializeAction(){
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
+        $this->extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
             $this->extConf =
                 GeneralUtility::makeInstance(ExtensionConfiguration::class)
                     ->get('mailsignature');
         } else {
-            $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
+            $this->extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->get('mailsignature');
         }
         $this->settings = $GLOBALS ['TSFE']->tmpl->setup ['plugin.'] ['tx_mailsignature.']['settings.'];
 
@@ -112,7 +112,7 @@ class SignatureService extends ExtensionService
      */
     public function getSignature($signatureId = 1 , $lng = NULL)
     {
-        $cObj = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer');
+        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         if( $signatureId == 0 ) {
             // if we get no ID take one from settings
             $signatureId = $this->settings['signatureId'] ;
@@ -251,7 +251,7 @@ class SignatureService extends ExtensionService
         // use FLUID to render the Template
 
         /** @var $renderer  StandaloneView */
-        $renderer = GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
+        $renderer = GeneralUtility::makeInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class);
 
         /** @var $controllerContext  ControllerContext */
         $controllerContext = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\MVC\\Controller\\ControllerContext');

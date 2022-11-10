@@ -41,7 +41,6 @@ class SignatureController extends ActionController
      * signatureRepository
      *
      * @var SignatureRepository
-     * @inject
      */
     protected $signatureRepository = NULL;
 
@@ -67,17 +66,15 @@ class SignatureController extends ActionController
 	 * @return void
 	 */
     public function initializeAction(){
-        // $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
-        if (class_exists(ExtensionConfiguration::class)) {
-            $this->extConf =
-                GeneralUtility::makeInstance(ExtensionConfiguration::class)
+        $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)
                     ->get('mailsignature');
-        } else {
-            $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
-        }
         $this->settings = $GLOBALS ['TSFE']->tmpl->setup ['plugin.'] ['tx_mailsignature.']['settings.'];
 
+    }
+
+    public function injectSignatureRepository(SignatureRepository $signatureRepository): void
+    {
+        $this->signatureRepository = $signatureRepository;
     }
 
 
