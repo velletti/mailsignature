@@ -1,18 +1,14 @@
 {
     "name": "velletti/mailsignature",
     "type": "typo3-cms-extension",
-    "description": "Velletti  Mailsignature",
+    "description": "Velletti  Mailsignature store Import (eMail signatures) as database entries and use them with viewhelper in emails",
     "homepage": "https://github.com/velletti/mailsignature/",
     "license": [
         "GPL-2.0+"
     ],
     "keywords": ["TYPO3 CMS", "mailsignature", "Frontend"],
     "require": {
-        "typo3/cms-core": "^10.4.0"
-    },
-    "replace": {
-        "mailsignature": "self.version",
-        "typo3-ter/ke_questionnaire": "self.version"
+        "typo3/cms-core": "^10.4.0 || ^11.5"
     },
     "autoload": {
         "psr-4": {
