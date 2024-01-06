@@ -1,5 +1,8 @@
 <?php
 namespace Velletti\Mailsignature\ViewHelpers;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -37,7 +40,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * <mailsig:signature/>
  * </code>
  */
-class SignatureViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper {
+class SignatureViewHelper extends AbstractViewHelper {
 
     /**
      * Initialize arguments.
@@ -60,18 +63,18 @@ class SignatureViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractView
         $type = $this->arguments['type'] ;
         $signatureId = $this->arguments['signatureId'] ;
 
-		$cObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer');
+		$cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 
-        if (class_exists(\TYPO3\CMS\Core\Context\Context::class)) {
-            $languageAspect = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Context\Context::class)->getAspect('language') ;
+        if (class_exists(Context::class)) {
+            $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language') ;
             // (previously known as TSFE->sys_language_uid)
             $lng = $languageAspect->getId() ;
         } else {
-            $lng = $GLOBALS['TSFE']->sys_language_uid ;
+            $lng = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('language', 'id') ;
         }
 
         /**
-         * @var \TYPO3\CMS\Core\Database\ConnectionPool
+         * @var ConnectionPool
          */
         $connectionPool = GeneralUtility::makeInstance( ConnectionPool::class);
         /** @var  QueryBuilder $queryBuilder */
@@ -86,7 +89,7 @@ class SignatureViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractView
             $queryBuilder->andWhere( $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter( intval($signatureId) , Connection::PARAM_INT )) ) ;
         }
 
-        $row = $queryBuilder->execute()->fetch() ;
+        $row = $queryBuilder->executeQuery()->fetch() ;
 
         $row['html'] = $cObj->parseFunc($row['html'], array(), '< lib.parseFunc_RTE');
         $row['plain'] = strip_tags($row['plain']);

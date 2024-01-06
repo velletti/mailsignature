@@ -1,6 +1,8 @@
 <?php
 namespace Velletti\Mailsignature\Service;
 
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\AspectInterface;
 use TYPO3\CMS\Core\Context\Context;
@@ -90,13 +92,13 @@ class SignatureService extends ExtensionService
 	 * @return void
 	 */
     public function initializeAction(){
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
+        $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
             $this->extConf =
                 GeneralUtility::makeInstance(ExtensionConfiguration::class)
                     ->get('mailsignature');
         } else {
-            $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
+            $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         }
         $this->settings = $GLOBALS ['TSFE']->tmpl->setup ['plugin.'] ['tx_mailsignature.']['settings.'];
 
@@ -112,7 +114,7 @@ class SignatureService extends ExtensionService
      */
     public function getSignature($signatureId = 1 , $lng = NULL)
     {
-        $cObj = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer');
+        $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         if( $signatureId == 0 ) {
             // if we get no ID take one from settings
             $signatureId = $this->settings['signatureId'] ;
@@ -139,7 +141,7 @@ class SignatureService extends ExtensionService
                 // (previously known as TSFE->sys_language_uid)
                 $lng = $languageAspect->getId() ;
             } else {
-                $lng = $GLOBALS['TSFE']->sys_language_uid ;
+                $lng = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('language', 'id') ;
             }
         }
 
@@ -162,7 +164,7 @@ class SignatureService extends ExtensionService
 
         }
 
-        $result = $queryBuilder->execute()->fetchAssociative();
+        $result = $queryBuilder->executeQuery()->fetchAssociative();
 
         if(empty($result)){
             return array( "htlm" => '' , "plain" => ''  );
@@ -255,7 +257,7 @@ class SignatureService extends ExtensionService
         // use FLUID to render the Template
 
         /** @var $renderer  StandaloneView */
-        $renderer = GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
+        $renderer = GeneralUtility::makeInstance(StandaloneView::class);
 
         /** @var $controllerContext  ControllerContext */
         $controllerContext = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\MVC\\Controller\\ControllerContext');
@@ -276,8 +278,31 @@ class SignatureService extends ExtensionService
         $htmlMessage = $renderer->render();
 
         $plainMessage = strip_tags($params['message']) . "\n\n" .   $signature['plain']  ;
+        $success = false;
+        $mail = GeneralUtility::makeInstance(MailMessage::class);
+        $message = trim($plainMessage);
+        $senderName = trim($fromEmail);
+        $senderAddress = trim($sendCCmail);
+        if ($senderAddress !== '') {
+            $mail->from(new Address($senderAddress, $senderName));
+        }
+        $parsedReplyTo = MailUtility::parseAddresses($fromEmailName);
+        if (!empty($parsedReplyTo)) {
+            $mail->setReplyTo($parsedReplyTo);
+        }
+        if ($message !== '') {
+            $messageParts = explode(LF, $message, 2);
+            $subject = trim($messageParts[0]);
+            $plainMessage = trim($messageParts[1]);
+            $parsedRecipients = MailUtility::parseAddresses($htmlMessage);
+            if (!empty($parsedRecipients)) {
+                $mail->to(...$parsedRecipients)->subject($subject)->text($plainMessage);
+                $mail->send();
+            }
+            $success = true;
+        }
 
-        $this->sendNotifyEmail($plainMessage, $htmlMessage , $params['user']['email'] , $sendCCmail , $fromEmail, $fromEmailName , $fromEmail ) ;
+        $success ;
 
         // j.v.: now remove Email from Array so the default plain Email is not set out anymore
         unset( $params['user']['email'] ) ;
@@ -318,7 +343,7 @@ class SignatureService extends ExtensionService
             $mail->setReplyTo($parsedReplyTo);
         }
         /** @var Typo3Version $tt */
-        $tt = GeneralUtility::makeInstance( \TYPO3\CMS\Core\Information\Typo3Version::class ) ;
+        $tt = GeneralUtility::makeInstance( Typo3Version::class ) ;
 
 
         $message = trim($message);
@@ -337,13 +362,8 @@ class SignatureService extends ExtensionService
                 $mail->setTo($parsedRecipients)
                     ->setSubject($subject)
                     ->setReplyTo($replyTo) ;
-                if( $tt->getMajorVersion()  < 10 ) {
-                    $mail->setBody( $htmlMessage  , 'text/html'  );
-                    $mail->addPart( $plainMessage  , 'text/plain'  );
-                } else {
-                    $mail->html( $htmlMessage  , 'utf-8'  );
-                    $mail->text( $plainMessage  , 'utf-8'  );
-                }
+                $mail->html( $htmlMessage  , 'utf-8'  );
+                $mail->text( $plainMessage  , 'utf-8'  );
                 if (GeneralUtility::validEmail($parsedRecipients) ) {
                     $mail->send();
                 }
@@ -360,13 +380,8 @@ class SignatureService extends ExtensionService
                     ->setReplyTo($replyTo)
                     ->setSubject( "CC: " . $subject . " -> " . $parsedRecipients );
 
-                if( $tt->getMajorVersion()  < 10 ) {
-                    $mail->setBody( $htmlMessage  , 'text/html'  );
-                    $mail->addPart( $plainMessage  , 'text/plain'  );
-                } else {
-                    $mail->html( $htmlMessage  , 'utf-8'  );
-                    $mail->text( $plainMessage  , 'utf-8'  );
-                }
+                $mail->html( $htmlMessage  , 'utf-8'  );
+                $mail->text( $plainMessage  , 'utf-8'  );
                 if (GeneralUtility::validEmail($parsedCc) ) {
                     $mail->send();
                 }

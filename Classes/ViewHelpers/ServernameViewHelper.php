@@ -1,5 +1,8 @@
 <?php
 namespace Velletti\Mailsignature\ViewHelpers;
+
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 /***************************************************************
  * Copyright notice
  *
@@ -22,7 +25,6 @@ namespace Velletti\Mailsignature\ViewHelpers;
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
 /**
  * Viewhelper to render a selectbox with values
  * in given steps from start to end value
@@ -32,8 +34,7 @@ namespace Velletti\Mailsignature\ViewHelpers;
  * <mailsig:servername/>
  * </code>
  */
-
-class ServernameViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper {
+class ServernameViewHelper extends AbstractViewHelper {
 	/**
 	 * Initialize arguments.
 	 *
@@ -49,6 +50,6 @@ class ServernameViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractVie
 	 * @return string
 	 */
 	public function render() {
-        return \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv($this->arguments['format']) ;
+        return GeneralUtility::getIndpEnv($this->arguments['format']) ;
 	}
 }

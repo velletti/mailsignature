@@ -1,5 +1,7 @@
 <?php
 namespace Velletti\Mailsignature\ViewHelpers;
+
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 /***************************************************************
  * Copyright notice
  *
@@ -22,7 +24,6 @@ namespace Velletti\Mailsignature\ViewHelpers;
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
 /**
  * Viewhelper to render a selectbox with values
  * in given steps from start to end value
@@ -32,8 +33,7 @@ namespace Velletti\Mailsignature\ViewHelpers;
  * <mailsig:signature/>
  * </code>
  */
-
-class FluidClassViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper {
+class FluidClassViewHelper extends AbstractViewHelper {
 
     public function initializeArguments() {
         $this->registerArgument('cssClass', 'string', 'name of the wanted cssClass', false , array()  );
