@@ -13,7 +13,6 @@ use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
-use TYPO3\CMS\Extbase\MVC\Controller\ControllerContext;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidActionNameException;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidControllerNameException;
 use TYPO3\CMS\Extbase\Service\ExtensionService;
@@ -115,6 +114,10 @@ class SignatureService extends ExtensionService
     public function getSignature($signatureId = 1 , $lng = NULL)
     {
         $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $cObj->start([] );
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? new \TYPO3\CMS\Core\Http\ServerRequest();
+        $cObj->setRequest( $request );
+
         if( $signatureId == 0 ) {
             // if we get no ID take one from settings
             $signatureId = $this->settings['signatureId'] ;
@@ -206,7 +209,7 @@ class SignatureService extends ExtensionService
             $template = $this->settings['forgotPassword.']['sendHtmlTemplate'] ;
         }
         if ($template == '') {
-            $template = 'typo3conf/ext/mailsignature/Resources/Private/Templates/Email/Default.html' ;
+            $template = 'EXT:mailsignature/Resources/Private/Templates/Email/Default.html' ;
         }
 
 
@@ -252,22 +255,15 @@ class SignatureService extends ExtensionService
         $htmlMessage = "<h2>" . trim($messageParts[0]) . "</h2><br>" .  trim($messageParts[1]) ;
 
 
-        $signature = $this->getSignature( $signatureId  ) ;
+       // $signature = $this->getSignature( $signatureId  ) ;
 
         // use FLUID to render the Template
 
         /** @var $renderer  StandaloneView */
         $renderer = GeneralUtility::makeInstance(StandaloneView::class);
 
-        /** @var $controllerContext  ControllerContext */
-        $controllerContext = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\MVC\\Controller\\ControllerContext');
-        $controllerContext->setRequest(GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\MVC\\Request'));
-        $controllerContext->getRequest()->setControllerActionName("email") ;
-        $controllerContext->getRequest()->setControllerName("Email") ;
-
         $renderer->setFormat("html");
         $renderer->setTemplatePathAndFilename($template);
-        $renderer->setControllerContext($controllerContext);
         $renderer->assign('settings', $this->settings );
         $renderer->assign('params', $params );
         $renderer->assign('message', nl2br( $htmlMessage ) );
@@ -286,15 +282,19 @@ class SignatureService extends ExtensionService
         if ($senderAddress !== '') {
             $mail->from(new Address($senderAddress, $senderName));
         }
-        $parsedReplyTo = MailUtility::parseAddresses($fromEmailName);
+        $parsedReplyTo = MailUtility::parseAddresses($fromEmail);
         if (!empty($parsedReplyTo)) {
             $mail->setReplyTo($parsedReplyTo);
         }
         if ($message !== '') {
             $messageParts = explode(LF, $message, 2);
             $subject = trim($messageParts[0]);
+            if( array_key_exists("user" , $params) && array_key_exists("email" , $params["user"])) {
+                $parsedRecipients[] = $params["user"]["email"] ;
+            } else {
+                $parsedRecipients = MailUtility::parseAddresses($htmlMessage);
+            }
             $plainMessage = trim($messageParts[1]);
-            $parsedRecipients = MailUtility::parseAddresses($htmlMessage);
             if (!empty($parsedRecipients)) {
                 $mail->to(...$parsedRecipients)->subject($subject)->text($plainMessage);
                 $mail->send();
