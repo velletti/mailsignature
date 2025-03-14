@@ -272,7 +272,6 @@ class SignatureService extends ExtensionService
 
 
         $htmlMessage = $renderer->render();
-
         $plainMessage = strip_tags($params['message']) . "\n\n" .   $signature['plain']  ;
         $success = false;
         $mail = GeneralUtility::makeInstance(MailMessage::class);
@@ -287,6 +286,7 @@ class SignatureService extends ExtensionService
             $mail->setReplyTo($parsedReplyTo);
         }
         if ($message !== '') {
+
             $messageParts = explode(LF, $message, 2);
             $subject = trim($messageParts[0]);
             if( array_key_exists("user" , $params) && array_key_exists("email" , $params["user"])) {
@@ -296,13 +296,11 @@ class SignatureService extends ExtensionService
             }
             $plainMessage = trim($messageParts[1]);
             if (!empty($parsedRecipients)) {
-                $mail->to(...$parsedRecipients)->subject($subject)->text($plainMessage);
+                $mail->to(...$parsedRecipients)->subject($subject)->text($plainMessage)->html($htmlMessage);
                 $mail->send();
             }
             $success = true;
         }
-
-        $success ;
 
         // j.v.: now remove Email from Array so the default plain Email is not set out anymore
         unset( $params['user']['email'] ) ;

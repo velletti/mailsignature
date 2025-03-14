@@ -15,7 +15,7 @@ plugin.tx_mailsignature {
 
 			sendHtml   = 1
 			# good to know: the hook does not render EXT:/pluginname/etc and also does not offer easy access to CONSTANTS
-			sendHtmlTemplate = typo3conf/ext/mailsignature/Resources/Private/Templates/Email/ForgotPassword.html
+			sendHtmlTemplate = EXT:mailsignature/Resources/Private/Templates/Email/ForgotPassword.html
 
 			# cat=forgotPassword; type=integer; label=UID of the signature data record to send out additionally below th email
 			addSignature = 1
