@@ -1,0 +1,15 @@
+
+plugin.tx_mailsignature {
+	view {
+		# cat=plugin.tx_mailsignature_mailsignature/file; type=string; label=Path to template root (FE)
+		templateRootPath = EXT:mailsignature/Resources/Private/Templates/
+		# cat=plugin.tx_mailsignature_mailsignature/file; type=string; label=Path to template partials (FE)
+		partialRootPath = EXT:mailsignature/Resources/Private/Partials/
+		# cat=plugin.tx_mailsignature_mailsignature/file; type=string; label=Path to template layouts (FE)
+		layoutRootPath = EXT:mailsignature/Resources/Private/Layouts/
+	}
+	persistence {
+		# cat=plugin.tx_mailsignature_mailsignature//a; type=string; label=Default storage PID
+		storagePid = 40
+	}
+}
