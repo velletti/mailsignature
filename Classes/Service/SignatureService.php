@@ -86,10 +86,10 @@ class SignatureService extends ExtensionService
     }
 
     /**
-	 * action Initialize
-	 *
-	 * @return void
-	 */
+     * action Initialize
+     *
+     * @return void
+     */
     public function initializeAction(){
         $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
@@ -173,10 +173,79 @@ class SignatureService extends ExtensionService
             return array( "htlm" => '' , "plain" => ''  );
         }
 
-        $row['html'] = $cObj->parseFunc($result['html'], array(), '< lib.parseFunc_RTE');
+
         $row['plain'] = strip_tags($result['plain']);
+        try {
+            $row['html'] = $cObj->parseFunc($result['html'], [], '< lib.parseFunc_RTE' );
+            return $row;
+        } catch (\Exception $e) {
+            $parsFuncConf = $this->useDefaultParseFunc();
+            try {
+                $row['html'] = $cObj->parseFunc($result['html'], $parsFuncConf, null);
+            } catch (\Exception $e) {
+                $row['html'] = $row['plain'] ;
+            }
+        }
+
         return $row;
     }
+
+    private function useDefaultParseFunc() {
+        return  [
+            'makelinks' => 1,
+            'makelinks.' => [
+                'http.' => [
+                    'keep' => 'path',
+                    'extTarget' => '_blank'
+                ],
+                'mailto.' => [
+                    'keep' => 'path'
+                ]
+            ],
+            'tags.' => [
+                'a' => 'TEXT',
+                'a.' => [
+                    'current' => '1',
+                    'typolink.' => [
+                        'parameter.' => [
+                            'data' => 'parameters:href'
+                        ],
+                        'title.' => [
+                            'data' => 'parameters:title'
+                        ],
+                        'ATagParams.' => [
+                            'data' => 'parameters:allParams'
+                        ],
+                        'target.' => [
+                            'ifEmpty.' => [
+                                'data' => 'parameters:target'
+                            ]
+                        ],
+                        'extTarget.' => [
+                            'ifEmpty.' => [
+                                'override' => '_blank'
+                            ],
+                            'override.' => [
+                                'data' => 'parameters:target'
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'allowTags' => 'a, b, blockquote, br, caption, center, code, div, em, font, footer, header, h1, h2, h3, h4, h5, h6, hr, i, img, li, link, ol, p, pre, small, span, strike, strong, table, thead, tbody, tfoot, td, th, tr, u, ul',
+            'denyTags' => '*',
+            'constants' => '1',
+            'nonTypoTagStdWrap.' => [
+                'HTMLparser' => '1',
+                'HTMLparser.' => [
+                    'keepNonMatchedTags' => '1',
+                    'htmlSpecialChars' => '2'
+                ]
+            ],
+            'htmlSanitize' => '1'
+        ];
+    }
+
 
     /**
      * service sentHTMLmail
@@ -254,8 +323,12 @@ class SignatureService extends ExtensionService
         $messageParts = explode("\n", $htmlMessage, 2);
         $htmlMessage = "<h2>" . trim($messageParts[0]) . "</h2><br>" .  trim($messageParts[1]) ;
 
+    try {
+        $signature = $this->getSignature( $signatureId  ) ;
+    } catch (\Exception $e) {
+        $signature = [ 'html'  => '' , 'plain' => '' ] ;
+    }
 
-       // $signature = $this->getSignature( $signatureId  ) ;
 
         // use FLUID to render the Template
 
@@ -321,7 +394,7 @@ class SignatureService extends ExtensionService
      */
     public function sendNotifyEmail($message, $htmlMessage , $recipients, $cc, $senderAddress, $senderName = '', $replyTo = '')
     {
-       
+
         $senderName = trim($senderName);
         $senderAddress = trim($senderAddress);
         if ($senderName !== '' && $senderAddress !== '') {
