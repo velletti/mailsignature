@@ -71,18 +71,9 @@ class SignatureService extends ExtensionService
      */
     private $extConf = array();
 
-    /**
-     *
-     * Injects a  repository.
-     *
-     * @param  SignatureRepository $signatureRepository
-     *
-     * @return void
-     *
-     */
-    public function injectSignatureRepository(SignatureRepository $signatureRepository) {
-
-        $this->signatureRepository = $signatureRepository ;
+    public function __construct(private readonly \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool, private readonly \TYPO3\CMS\Core\Context\Context $context, \Velletti\Mailsignature\Domain\Repository\SignatureRepository $signatureRepository)
+    {
+        $this->signatureRepository = $signatureRepository;
     }
 
     /**
@@ -90,7 +81,7 @@ class SignatureService extends ExtensionService
 	 *
 	 * @return void
 	 */
-    public function initializeAction(){
+    public function initializeAction(): void{
         $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
             $this->extConf =
@@ -99,7 +90,7 @@ class SignatureService extends ExtensionService
         } else {
             $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         }
-        $this->settings = $GLOBALS ['TSFE']->tmpl->setup ['plugin.'] ['tx_mailsignature.']['settings.'];
+        $this->settings = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray() ['plugin.'] ['tx_mailsignature.']['settings.'];
 
     }
 
@@ -130,7 +121,7 @@ class SignatureService extends ExtensionService
          * @var ConnectionPool $connectionPool
          * @var QueryBuilder $queryBuilder
          */
-        $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        $connectionPool = $this->connectionPool;
         $queryBuilder = $connectionPool->getQueryBuilderForTable('tx_mailsignature_domain_model_signature');
 
         $queryBuilder->select('*')->from('tx_mailsignature_domain_model_signature') ;
@@ -140,11 +131,11 @@ class SignatureService extends ExtensionService
         if( is_null( $lng ) ) {
             if (class_exists(Context::class)) {
                 /** @var AspectInterface $languageAspect */
-                $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language') ;
+                $languageAspect = $this->context->getAspect('language') ;
                 // (previously known as TSFE->sys_language_uid)
                 $lng = $languageAspect->getId() ;
             } else {
-                $lng = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('language', 'id') ;
+                $lng = $this->context->getPropertyFromAspect('language', 'id') ;
             }
         }
 
@@ -263,7 +254,7 @@ class SignatureService extends ExtensionService
         $renderer = GeneralUtility::makeInstance(StandaloneView::class);
 
         $renderer->setFormat("html");
-        $renderer->setTemplatePathAndFilename($template);
+        $renderer->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($template);
         $renderer->assign('settings', $this->settings );
         $renderer->assign('params', $params );
         $renderer->assign('message', nl2br( $htmlMessage ) );

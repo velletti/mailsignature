@@ -41,7 +41,7 @@ class ServernameViewHelper extends AbstractViewHelper {
 	 * @return void
 	 * @api
 	 */
-	public function initializeArguments()
+	public function initializeArguments(): void
 	{
         $this->registerArgument('format', 'string', 'The wanted Environment Value from getIndEnv() ', false , "TYPO3_REQUEST_HOST"  );
 	}

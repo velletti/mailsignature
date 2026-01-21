@@ -49,7 +49,7 @@ class SignatureController extends ActionController
      *
      * @var array
      */
-    public $settings ;
+    public array $settings ;
 
     /**
      * Extension configuration
@@ -57,6 +57,10 @@ class SignatureController extends ActionController
      * @var	array
      */
     private $extConf = array();
+    public function __construct(\Velletti\Mailsignature\Domain\Repository\SignatureRepository $signatureRepository)
+    {
+        $this->signatureRepository = $signatureRepository;
+    }
 
 
     /*
@@ -65,7 +69,7 @@ class SignatureController extends ActionController
 	 * @param none
 	 * @return void
 	 */
-    public function initializeAction(){
+    public function initializeAction(): void{
         // $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mailsignature']);
         $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
@@ -75,13 +79,8 @@ class SignatureController extends ActionController
         } else {
             $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         }
-        $this->settings = $GLOBALS ['TSFE']->tmpl->setup ['plugin.'] ['tx_mailsignature.']['settings.'];
+        $this->settings = $this->request->getAttribute('frontend.typoscript')->getSetupArray() ['plugin.'] ['tx_mailsignature.']['settings.'];
 
-    }
-
-    public function injectSignatureRepository(SignatureRepository $signatureRepository): void
-    {
-        $this->signatureRepository = $signatureRepository;
     }
 
 

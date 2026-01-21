@@ -71,7 +71,7 @@ class Signature extends AbstractValueObject
      * @param string $html
      * @return void
      */
-    public function setHtml($html)
+    public function setHtml($html): void
     {
         $this->html = $html;
     }
@@ -92,7 +92,7 @@ class Signature extends AbstractValueObject
      * @param string $plain
      * @return void
      */
-    public function setPlain($plain)
+    public function setPlain($plain): void
     {
         $this->plain = $plain;
     }
@@ -113,7 +113,7 @@ class Signature extends AbstractValueObject
      * @param string $name
      * @return void
      */
-    public function setName($name)
+    public function setName($name): void
     {
         $this->name = $name;
     }

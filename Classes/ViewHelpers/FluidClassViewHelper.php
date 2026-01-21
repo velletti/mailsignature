@@ -35,7 +35,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 class FluidClassViewHelper extends AbstractViewHelper {
 
-    public function initializeArguments() {
+    public function initializeArguments(): void {
         $this->registerArgument('cssClass', 'string', 'name of the wanted cssClass', false , array()  );
         $this->registerArgument('type', 'string', 'type of section : header or body or end Div  ', false , "body"  );
         $this->registerArgument('tag', 'string', 'wanted tag default name  DIV ', false , "div"  );

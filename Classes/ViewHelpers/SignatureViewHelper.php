@@ -42,13 +42,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class SignatureViewHelper extends AbstractViewHelper {
 
+    public function __construct(private readonly \TYPO3\CMS\Core\Context\Context $context, private readonly \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool)
+    {
+    }
     /**
      * Initialize arguments.
      *
      * @return void
      * @api
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('type', 'string', 'signature Type = html = default or plain ', false , "html"  );
         $this->registerArgument('signatureId', 'integer', 'The wanted Environment Value from getIndEnv() ', false , 1  );
@@ -66,17 +69,17 @@ class SignatureViewHelper extends AbstractViewHelper {
 		$cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 
         if (class_exists(Context::class)) {
-            $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language') ;
+            $languageAspect = $this->context->getAspect('language') ;
             // (previously known as TSFE->sys_language_uid)
             $lng = $languageAspect->getId() ;
         } else {
-            $lng = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('language', 'id') ;
+            $lng = $this->context->getPropertyFromAspect('language', 'id') ;
         }
 
         /**
          * @var ConnectionPool
          */
-        $connectionPool = GeneralUtility::makeInstance( ConnectionPool::class);
+        $connectionPool = $this->connectionPool;
         /** @var  QueryBuilder $queryBuilder */
         $queryBuilder = $connectionPool->getQueryBuilderForTable('tx_mailsignature_domain_model_signature' );
 
@@ -89,7 +92,7 @@ class SignatureViewHelper extends AbstractViewHelper {
             $queryBuilder->andWhere( $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter( intval($signatureId) , Connection::PARAM_INT )) ) ;
         }
 
-        $row = $queryBuilder->executeQuery()->fetch() ;
+        $row = $queryBuilder->executeQuery()->fetchAssociative() ;
 
         $row['html'] = $cObj->parseFunc($row['html'], array(), '< lib.parseFunc_RTE');
         $row['plain'] = strip_tags($row['plain']);

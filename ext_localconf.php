@@ -14,7 +14,8 @@ if (!defined('TYPO3')) {
 	array(
 		\Velletti\Mailsignature\Controller\SignatureController::class => '',
 		
-	)
+	),
+    \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
 );
 
 // use hook to change the Email before Send out
