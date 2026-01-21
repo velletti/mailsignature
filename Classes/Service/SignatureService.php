@@ -16,8 +16,11 @@ use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidActionNameException;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidControllerNameException;
 use TYPO3\CMS\Extbase\Service\ExtensionService;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Velletti\Mailsignature\Domain\Repository\SignatureRepository;
+
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+
 
 /***************************************************************
  *
@@ -77,10 +80,10 @@ class SignatureService extends ExtensionService
     }
 
     /**
-	 * action Initialize
-	 *
-	 * @return void
-	 */
+     * action Initialize
+     *
+     * @return void
+     */
     public function initializeAction(): void{
         $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
@@ -170,7 +173,7 @@ class SignatureService extends ExtensionService
     }
 
     /**
-     * service sentHTMLmail
+     * @deprecated service sentHTMLmail wil lbe removed in future versions use sendNotifyEmail
      * @param array $params
      *        parameter : ['message']  fitst line is Subject with following lines as text
      *                    ['user']['email'] = the email of the User that should get the Email
@@ -185,116 +188,8 @@ class SignatureService extends ExtensionService
      * @throws InvalidActionNameException
      * @throws InvalidControllerNameException
      */
-    public function sentHTMLmailService($params , $feloginThis = false )
+    public function sentHTMLmailService($params , $feloginThis = false ): array
     {
-        $this->initializeAction() ;
-        if( key_exists("signatureId" , $params ) && $params['signatureId'] ) {
-            $signatureId = $params['signatureId'] ;
-        } else {
-            $signatureId = $this->settings['forgotPassword.']['addSignature'] ;
-        }
-
-        if( key_exists("sendHtmlTemplate" , $params ) && $params['sendHtmlTemplate'] ) {
-            $template = $params['sendHtmlTemplate'] ;
-        } else {
-            $template = $this->settings['forgotPassword.']['sendHtmlTemplate'] ;
-        }
-        if ($template == '') {
-            $template = 'EXT:mailsignature/Resources/Private/Templates/Email/Default.html' ;
-        }
-
-
-        if( key_exists("email_from" , $params) && $params['email_from']) {
-            $fromEmail = $params['email_from'];
-        } else {
-            $fromEmail  = $feloginThis->conf ['email_from'] ;
-        }
-
-        if( key_exists("email_fromName" , $params) && $params['email_fromName']) {
-            $fromEmailName = $params['email_fromName'];
-        } else {
-            $fromEmailName  = $feloginThis->conf ['email_fromName'] ;
-        }
-
-        if( key_exists("sendCCmail" , $params )  ) {
-            $sendCCmail = $params['sendCCmail'] ;
-        } else {
-            $sendCCmail = $this->settings['forgotPassword.']['sendCCmail'] ;
-        }
-
-        $messArr = explode( "http" , $params['message'] , 2) ;
-        $htmlMessage = '' ;
-        if( is_array($messArr)) {
-            $newMess = $messArr[0] ;
-            $messArr2 = explode("\n" , $messArr[1] ) ;
-            if( is_array($messArr2)) {
-
-
-                $newMess .= "<div  style=\"max-width:450px ; overflow: hidden; margin: 0 auto; text-align: center;\"> \n<a style=\"font-size: 90%; word-wrap: break-word\" href=\"http"  . $messArr2[0] . "\" > "
-                    . "http" . $messArr2[0] ."</a></div>" ;
-                foreach($messArr2 as $key => $value ) {
-                    if( $key > 0) {
-                        $newMess .= "\n" . $value ;
-                    }
-                }
-                $htmlMessage = $newMess ;
-            }
-        } else {
-            $htmlMessage = $params['message'] ;
-        }
-        $messageParts = explode("\n", $htmlMessage, 2);
-        $htmlMessage = "<h2>" . trim($messageParts[0]) . "</h2><br>" .  trim($messageParts[1]) ;
-
-
-       // $signature = $this->getSignature( $signatureId  ) ;
-
-        // use FLUID to render the Template
-
-        /** @var $renderer  StandaloneView */
-        $renderer = GeneralUtility::makeInstance(StandaloneView::class);
-
-        $renderer->setFormat("html");
-        $renderer->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($template);
-        $renderer->assign('settings', $this->settings );
-        $renderer->assign('params', $params );
-        $renderer->assign('message', nl2br( $htmlMessage ) );
-        $renderer->assign('signature', $signature['html'] );
-        $renderer->assign('server',  GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'));
-
-
-        $htmlMessage = $renderer->render();
-        $plainMessage = strip_tags($params['message']) . "\n\n" .   $signature['plain']  ;
-        $success = false;
-        $mail = GeneralUtility::makeInstance(MailMessage::class);
-        $message = trim($plainMessage);
-        $senderName = trim($fromEmail);
-        $senderAddress = trim($sendCCmail);
-        if ($senderAddress !== '') {
-            $mail->from(new Address($senderAddress, $senderName));
-        }
-        $parsedReplyTo = MailUtility::parseAddresses($fromEmail);
-        if (!empty($parsedReplyTo)) {
-            $mail->setReplyTo($parsedReplyTo);
-        }
-        if ($message !== '') {
-
-            $messageParts = explode(LF, $message, 2);
-            $subject = trim($messageParts[0]);
-            if( array_key_exists("user" , $params) && array_key_exists("email" , $params["user"])) {
-                $parsedRecipients[] = $params["user"]["email"] ;
-            } else {
-                $parsedRecipients = MailUtility::parseAddresses($htmlMessage);
-            }
-            $plainMessage = trim($messageParts[1]);
-            if (!empty($parsedRecipients)) {
-                $mail->to(...$parsedRecipients)->subject($subject)->text($plainMessage)->html($htmlMessage);
-                $mail->send();
-            }
-            $success = true;
-        }
-
-        // j.v.: now remove Email from Array so the default plain Email is not set out anymore
-        unset( $params['user']['email'] ) ;
         return $params ;
     }
 
@@ -312,7 +207,7 @@ class SignatureService extends ExtensionService
      */
     public function sendNotifyEmail($message, $htmlMessage , $recipients, $cc, $senderAddress, $senderName = '', $replyTo = '')
     {
-       
+
         $senderName = trim($senderName);
         $senderAddress = trim($senderAddress);
         if ($senderName !== '' && $senderAddress !== '') {

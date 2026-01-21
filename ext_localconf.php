@@ -17,6 +17,3 @@ if (!defined('TYPO3')) {
 	),
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
 );
-
-// use hook to change the Email before Send out
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['felogin']['forgotPasswordMail'][] = "Velletti\Mailsignature\Service\SignatureService->sentHTMLmailService" ;
