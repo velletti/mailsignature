@@ -39,28 +39,28 @@ class Signature extends AbstractValueObject
      *
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
     
     /**
      * html
      *
      * @var string
      */
-    protected $html = '';
+    protected string $html = '';
     
     /**
      * plain
      *
      * @var string
      */
-    protected $plain = '';
+    protected string $plain = '';
     
     /**
      * Returns the html
      *
      * @return string $html
      */
-    public function getHtml()
+    public function getHtml(): string
     {
         return $this->html;
     }
@@ -71,7 +71,7 @@ class Signature extends AbstractValueObject
      * @param string $html
      * @return void
      */
-    public function setHtml($html): void
+    public function setHtml(string $html): void
     {
         $this->html = $html;
     }
@@ -81,7 +81,7 @@ class Signature extends AbstractValueObject
      *
      * @return string $plain
      */
-    public function getPlain()
+    public function getPlain(): string
     {
         return $this->plain;
     }
@@ -92,7 +92,7 @@ class Signature extends AbstractValueObject
      * @param string $plain
      * @return void
      */
-    public function setPlain($plain): void
+    public function setPlain(string $plain): void
     {
         $this->plain = $plain;
     }
@@ -102,7 +102,7 @@ class Signature extends AbstractValueObject
      *
      * @return string $name
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -113,7 +113,7 @@ class Signature extends AbstractValueObject
      * @param string $name
      * @return void
      */
-    public function setName($name): void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }

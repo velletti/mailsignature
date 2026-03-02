@@ -55,7 +55,7 @@ class SignatureService extends ExtensionService
      *
      * @var SignatureRepository
      */
-    protected $signatureRepository = NULL;
+    protected SignatureRepository $signatureRepository ;
 
     /**
      * settings
@@ -64,6 +64,11 @@ class SignatureService extends ExtensionService
      */
     public $settings ;
 
+
+    public ConnectionPool $connectionPool;
+
+    public Context $context;
+
     /**
      * Extension configuration
      *
@@ -71,9 +76,11 @@ class SignatureService extends ExtensionService
      */
     private $extConf = array();
 
-    public function __construct(private readonly \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool, private readonly \TYPO3\CMS\Core\Context\Context $context, \Velletti\Mailsignature\Domain\Repository\SignatureRepository $signatureRepository)
+    public function __construct()
     {
-        $this->signatureRepository = $signatureRepository;
+        $this->connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        $this->signatureRepository = GeneralUtility::makeInstance(SignatureRepository::class);
+        $this->context = GeneralUtility::makeInstance(Context::class);;
     }
 
     /**
@@ -245,8 +252,12 @@ class SignatureService extends ExtensionService
         $messageParts = explode("\n", $htmlMessage, 2);
         $htmlMessage = "<h2>" . trim($messageParts[0]) . "</h2><br>" .  trim($messageParts[1]) ;
 
+        try {
+            $signature = $this->getSignature( $signatureId  ) ;
+        } catch (\Exception $e) {
+            $signature = array( "html" => '' , "plain" => ''  ) ;
+        }
 
-       // $signature = $this->getSignature( $signatureId  ) ;
 
         // use FLUID to render the Template
 
