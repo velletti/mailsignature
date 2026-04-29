@@ -9,3 +9,4 @@ PWDsendHtml   = 1
 # cat=forgotPassword; type=integer; label=UID of the signature data record to send out
 PWDaddsignature = 1
 
+logoPath = EXT:mailsignature/Resources/Public/Img/EmailImg.JPG
