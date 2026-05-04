@@ -176,18 +176,14 @@ class SignatureService extends ExtensionService
             return array( "htlm" => '' , "plain" => ''  );
         }
         // generate a default parsefuc configuration for RTE content, so that we can use the same syntax as in the RTE for signatures
-        $conf = array(
-            'externalBlocks' => array(
-                'default' => array(
-                    'htmlSpecialChars' => 0,
-                    'allowTags' => '*',
-                    'denyTags' => '',
-                    'allowedAttribs' => '*',
-                    'denyAttribs' => '',
-                ),
-            ),
-        );
-
+        $conf['externalBlocks'] = 'table,blockquote,ol,ul,li,div' ;
+        $conf['externalBlocks.']['default'] = [
+            'htmlSpecialChars' => 0,
+            'allowTags' => '*',
+            'denyTags' => '',
+            'allowedAttribs' => '*',
+            'denyAttribs' => '',
+        ] ;
 
         $row['html'] = $cObj->parseFunc($result['html'], $conf , '< lib.parseFunc_RTE');
         $row['plain'] = strip_tags($result['plain']);

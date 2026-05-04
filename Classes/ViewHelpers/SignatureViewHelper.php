@@ -94,7 +94,16 @@ class SignatureViewHelper extends AbstractViewHelper {
 
         $row = $queryBuilder->executeQuery()->fetchAssociative() ;
 
-        $row['html'] = $cObj->parseFunc($row['html'], array(), '< lib.parseFunc_RTE');
+        $conf['externalBlocks'] = 'table,blockquote,ol,ul,li,div' ;
+        $conf['externalBlocks.']['default'] = [
+            'htmlSpecialChars' => 0,
+            'allowTags' => '*',
+            'denyTags' => '',
+            'allowedAttribs' => '*',
+            'denyAttribs' => '',
+        ] ;
+
+        $row['html'] = $cObj->parseFunc($row['html'],$conf, '< lib.parseFunc_RTE');
         $row['plain'] = strip_tags($row['plain']);
 
 
