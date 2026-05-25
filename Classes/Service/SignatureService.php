@@ -1,6 +1,7 @@
 <?php
 namespace Velletti\Mailsignature\Service;
 
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -55,7 +56,7 @@ class SignatureService extends ExtensionService
      *
      * @var SignatureRepository
      */
-    protected $signatureRepository = NULL;
+    protected SignatureRepository $signatureRepository ;
 
     /**
      * settings
@@ -64,6 +65,11 @@ class SignatureService extends ExtensionService
      */
     public $settings ;
 
+
+    public ConnectionPool $connectionPool;
+
+    public Context $context;
+
     /**
      * Extension configuration
      *
@@ -71,18 +77,11 @@ class SignatureService extends ExtensionService
      */
     private $extConf = array();
 
-    /**
-     *
-     * Injects a  repository.
-     *
-     * @param  SignatureRepository $signatureRepository
-     *
-     * @return void
-     *
-     */
-    public function injectSignatureRepository(SignatureRepository $signatureRepository) {
-
-        $this->signatureRepository = $signatureRepository ;
+    public function __construct()
+    {
+        $this->connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        $this->signatureRepository = GeneralUtility::makeInstance(SignatureRepository::class);
+        $this->context = GeneralUtility::makeInstance(Context::class);;
     }
 
     /**
@@ -90,7 +89,7 @@ class SignatureService extends ExtensionService
 	 *
 	 * @return void
 	 */
-    public function initializeAction(){
+    public function initializeAction(): void{
         $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         if (class_exists(ExtensionConfiguration::class)) {
             $this->extConf =
@@ -99,7 +98,11 @@ class SignatureService extends ExtensionService
         } else {
             $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mailsignature');
         }
-        $this->settings = $GLOBALS ['TSFE']->tmpl->setup ['plugin.'] ['tx_mailsignature.']['settings.'];
+        if ( $GLOBALS['TYPO3_REQUEST'] && method_exists($GLOBALS['TYPO3_REQUEST'] , "getAttribute") && $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript') ) {
+            $this->settings = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray() ['plugin.'] ['tx_mailsignature.']['settings.'];
+        }else {
+            $this->settings = [];
+        }
 
     }
 
@@ -130,7 +133,7 @@ class SignatureService extends ExtensionService
          * @var ConnectionPool $connectionPool
          * @var QueryBuilder $queryBuilder
          */
-        $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        $connectionPool = $this->connectionPool;
         $queryBuilder = $connectionPool->getQueryBuilderForTable('tx_mailsignature_domain_model_signature');
 
         $queryBuilder->select('*')->from('tx_mailsignature_domain_model_signature') ;
@@ -140,11 +143,11 @@ class SignatureService extends ExtensionService
         if( is_null( $lng ) ) {
             if (class_exists(Context::class)) {
                 /** @var AspectInterface $languageAspect */
-                $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language') ;
+                $languageAspect = $this->context->getAspect('language') ;
                 // (previously known as TSFE->sys_language_uid)
                 $lng = $languageAspect->getId() ;
             } else {
-                $lng = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('language', 'id') ;
+                $lng = $this->context->getPropertyFromAspect('language', 'id') ;
             }
         }
 
@@ -172,8 +175,17 @@ class SignatureService extends ExtensionService
         if(empty($result)){
             return array( "htlm" => '' , "plain" => ''  );
         }
+        // generate a default parsefuc configuration for RTE content, so that we can use the same syntax as in the RTE for signatures
+        $conf['externalBlocks'] = 'table,blockquote,ol,ul,li,div' ;
+        $conf['externalBlocks.']['default'] = [
+            'htmlSpecialChars' => 0,
+            'allowTags' => '*',
+            'denyTags' => '',
+            'allowedAttribs' => '*',
+            'denyAttribs' => '',
+        ] ;
 
-        $row['html'] = $cObj->parseFunc($result['html'], array(), '< lib.parseFunc_RTE');
+        $row['html'] = $cObj->parseFunc($result['html'], $conf , '< lib.parseFunc_RTE');
         $row['plain'] = strip_tags($result['plain']);
         return $row;
     }
@@ -254,8 +266,12 @@ class SignatureService extends ExtensionService
         $messageParts = explode("\n", $htmlMessage, 2);
         $htmlMessage = "<h2>" . trim($messageParts[0]) . "</h2><br>" .  trim($messageParts[1]) ;
 
+        try {
+            $signature = $this->getSignature( $signatureId  ) ;
+        } catch (\Exception $e) {
+            $signature = array( "html" => '' , "plain" => ''  ) ;
+        }
 
-       // $signature = $this->getSignature( $signatureId  ) ;
 
         // use FLUID to render the Template
 
@@ -263,12 +279,22 @@ class SignatureService extends ExtensionService
         $renderer = GeneralUtility::makeInstance(StandaloneView::class);
 
         $renderer->setFormat("html");
-        $renderer->setTemplatePathAndFilename($template);
+        $renderer->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($template);
         $renderer->assign('settings', $this->settings );
         $renderer->assign('params', $params );
         $renderer->assign('message', nl2br( $htmlMessage ) );
+
+        $server =  GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST') ;
+        $publicImageUrl = $this->extConf['logoPath']
+            ?? 'EXT:mailsignature/Resources/Public/Img/EmailImg.JPG';
+        if ( !str_starts_with( $publicImageUrl , "http")) {
+            $publicImageUrl = "https://"  . GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY') .  "/" .\TYPO3\CMS\Core\Utility\PathUtility::getPublicResourceWebPath($publicImageUrl   );
+        }
+
+
+        $renderer->assign('logoPathFromExtConf', $publicImageUrl );
         $renderer->assign('signature', $signature['html'] );
-        $renderer->assign('server',  GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'));
+        $renderer->assign('server', $server);
 
 
         $htmlMessage = $renderer->render();
